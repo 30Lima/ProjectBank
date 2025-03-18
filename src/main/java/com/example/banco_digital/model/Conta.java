@@ -4,14 +4,26 @@ import java.time.LocalDate;
 
 public class Conta {
     private String numero;
+    
     private String agencia;
+    
+    @NotNull(message = "O nome do titular é obrigatório.")
     private String nomeTitular;
+    
+    @NotNull(message = "O CPF do titular é obrigatório.")
+    @Pattern(regexp = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF inválido. O formato deve ser XXX.XXX.XXX-XX.")
     private String cpfTitular;
+    
+    @NotNull(message = "A data de abertura é obrigatória.")
+    @PastOrPresent(message = "A data de abertura não pode ser no futuro.")
     private LocalDate dataAbertura;
-    private double saldoInicial;
-    private boolean ativa;
-    private String tipo; // "corrente", "poupanca", "salario"
-
+    
+    @DecimalMin(value = "0.0", inclusive = false, message = "O saldo inicial não pode ser negativo.")
+    private Double saldoInicial;
+    
+    @NotNull(message = "O tipo de conta é obrigatório.")
+    @Pattern(regexp = "corrente|poupança|salário", message = "Tipo de conta inválido. Os tipos válidos são: corrente, poupança ou salário.")
+    private String tipo;
     // Getters and Setters
     public String getNumero() {
         return numero;
