@@ -85,16 +85,36 @@ public class ContaController {
         
         // Verifica se o valor do depósito é válido
         if (deposito.getValor() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Se o valor for inválido, retorna erro 400
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Se o valor for inválido, retorna erro 400
+            }
+            
+            // Realiza o depósito, somando o valor ao saldo da conta
+            conta.setSaldoInicial(conta.getSaldoInicial() + deposito.getValor());
+            
+            // Retorna a conta atualizada com os dados do saldo
+            return ResponseEntity.ok(conta);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Retorna erro 404 se a conta não for encontrada
         }
-        
-        // Realiza o depósito, somando o valor ao saldo da conta
-        conta.setSaldoInicial(conta.getSaldoInicial() + deposito.getValor());
-        
-        // Retorna a conta atualizada com os dados do saldo
-        return ResponseEntity.ok(conta);
-    } else {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Retorna erro 404 se a conta não for encontrada
     }
-}
+
+    @PutMapping("/saque")
+    public ResponseEntity<String> realizarSaque(@RequestBody Saque saque) {
+        // Busca a conta pelo ID
+        Optional<Conta> contaOpt = contas.stream().filter(c -> c.getId() == saque.getIdConta()).findFirst();
+
+        if (contaOpt.isPresent()) {
+            Conta conta = contaOpt.get();
+
+            // Verifica se o valor do saque é válido (não pode ser maior que o saldo da conta)
+            if (saque.getValor() <= conta.getSaldoInicial() && saque.getValor() > 0) {
+                conta.setSaldoInicial(conta.getSaldoInicial() - saque.getValor()); // Subtrai o valor do saldo
+                return ResponseEntity.ok("Saque realizado com sucesso! Saldo atualizado: " + conta.getSaldoInicial());
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Saldo insuficiente ou valor inválido.");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Conta não encontrada!");
+        }
+    }
 }
