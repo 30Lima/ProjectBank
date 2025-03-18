@@ -60,4 +60,18 @@ public class ContaController {
              return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Retorna 404 se não encontrar
          }
      }
+
+      // Endpoint para encerrar uma conta (marcar como inativa)
+    @PutMapping("/encerrar/{id}")
+    public ResponseEntity<String> encerrarConta(@PathVariable int id) {
+        Optional<Conta> contaOpt = contas.stream().filter(c -> c.getId() == id).findFirst();
+        
+        if (contaOpt.isPresent()) {
+            Conta conta = contaOpt.get();
+            conta.setAtiva(false); // Marca a conta como inativa
+            return ResponseEntity.ok("Conta encerrada com sucesso!");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Conta não encontrada!");
+        }
+    }
 }
