@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String exibirInformacoes() {
-        return "Dream Bank - Integrantes: Pedro Henrique Lima Santos - RM558243, Vitor Gomes Martins RM558244";
+        return "Dream Bank - Integrantes: Pedro Henrique Lima Santos - RM558243, Vitor Gomes Martins - RM558244";
     }
 }
