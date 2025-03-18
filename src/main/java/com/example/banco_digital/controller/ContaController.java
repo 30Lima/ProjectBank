@@ -74,4 +74,27 @@ public class ContaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Conta não encontrada!");
         }
     }
+
+    @PutMapping("/deposito")
+    public ResponseEntity<Conta> realizarDeposito(@RequestBody Deposito deposito) {
+    // Busca a conta pelo ID
+    Optional<Conta> contaOpt = contas.stream().filter(c -> c.getId() == deposito.getIdConta()).findFirst();
+    
+    if (contaOpt.isPresent()) {
+        Conta conta = contaOpt.get();
+        
+        // Verifica se o valor do depósito é válido
+        if (deposito.getValor() <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Se o valor for inválido, retorna erro 400
+        }
+        
+        // Realiza o depósito, somando o valor ao saldo da conta
+        conta.setSaldoInicial(conta.getSaldoInicial() + deposito.getValor());
+        
+        // Retorna a conta atualizada com os dados do saldo
+        return ResponseEntity.ok(conta);
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Retorna erro 404 se a conta não for encontrada
+    }
+}
 }
