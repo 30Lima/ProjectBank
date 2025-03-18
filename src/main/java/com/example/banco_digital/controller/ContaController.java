@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/contas")  
@@ -37,4 +38,26 @@ public class ContaController {
     public List<Conta> listarContas() {
         return contas;
     }
+
+     // Endpoint para retornar uma conta por ID
+     @GetMapping("/{id}")
+     public ResponseEntity<Conta> getContaPorId(@PathVariable int id) {
+         Optional<Conta> conta = contas.stream().filter(c -> c.getId() == id).findFirst();
+         if (conta.isPresent()) {
+             return ResponseEntity.ok(conta.get());
+         } else {
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Retorna 404 se não encontrar
+         }
+     }
+ 
+     // Endpoint para retornar uma conta por CPF do titular
+     @GetMapping("/cpf/{cpf}")
+     public ResponseEntity<Conta> getContaPorCpf(@PathVariable String cpf) {
+         Optional<Conta> conta = contas.stream().filter(c -> c.getCpfTitular().equals(cpf)).findFirst();
+         if (conta.isPresent()) {
+             return ResponseEntity.ok(conta.get());
+         } else {
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Retorna 404 se não encontrar
+         }
+     }
 }
