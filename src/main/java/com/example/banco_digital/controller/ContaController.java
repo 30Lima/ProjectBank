@@ -117,4 +117,33 @@ public class ContaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Conta não encontrada!");
         }
     }
+
+        @PutMapping("/pix")
+    public ResponseEntity<String> realizarPix(@RequestBody Pix pix) {
+        // Busca a conta de origem pelo ID
+        Optional<Conta> contaOrigemOpt = contas.stream().filter(c -> c.getId() == pix.getIdContaOrigem()).findFirst();
+        // Busca a conta de destino pelo ID
+        Optional<Conta> contaDestinoOpt = contas.stream().filter(c -> c.getId() == pix.getIdContaDestino()).findFirst();
+
+        // Verifica se ambas as contas existem
+        if (contaOrigemOpt.isPresent() && contaDestinoOpt.isPresent()) {
+            Conta contaOrigem = contaOrigemOpt.get();
+            Conta contaDestino = contaDestinoOpt.get();
+
+            // Verifica se o valor do PIX é válido (não pode ser maior que o saldo da conta de origem)
+            if (pix.getValor() <= contaOrigem.getSaldoInicial() && pix.getValor() > 0) {
+                // Subtrai o valor da conta de origem
+                contaOrigem.setSaldoInicial(contaOrigem.getSaldoInicial() - pix.getValor());
+                // Adiciona o valor à conta de destino
+                contaDestino.setSaldoInicial(contaDestino.getSaldoInicial() + pix.getValor());
+
+                // Retorna os dados atualizados da conta de origem
+                return ResponseEntity.ok("PIX realizado com sucesso! Saldo da conta de origem atualizado: " + contaOrigem.getSaldoInicial());
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Saldo insuficiente ou valor inválido.");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Uma ou ambas as contas não foram encontradas.");
+        }
+    }
 }
